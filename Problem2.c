@@ -1,55 +1,126 @@
 #include <stdio.h>
+#include <ctype.h>
 
-float convert_celsius(float temp, int scale);
-float convert_from_celsius(float celcius, int target);
-void advisory(float celcius);
+float celsius_to_fahrenheit(float celsius);
+float fahrenheit_to_celsius(float fahrenheit);
+float celsius_to_kelvin(float celsius);
+float kelvin_to_celsius(float kelvin);
+float fahrenheit_to_kelvin(float fahrenheit);
+float kelvin_to_fahrenheit(float kelvin);
+void categorize_temp(float celsius);
 
 int main() {
-    float input_temp, converted_temp, value_celsius;
-    int current_scale, target;
+    float temperature, convertedTemp, tempInCelsius;
+    char inputScale, targetScale;
 
-    printf("Enter the temperature value: ");
-    scanf("%f", &input_temp);
+    printf("=== Temperature Conversion Utility ===\n");
 
-    printf("Choose the temperature scale of the input value (Fahrenheit, Celsius, or Kelvin): ");
-    scanf("%d", &current_scale);
+    printf("Enter temperature value: ");
+    if (scanf("%f", &temperature) !=1) {
+        printf("Error: Invalid numeric input.\n");
+        return 1;
+    }
 
-    printf("Choose the conversion target (Fahrenheit, Celsius, or Kelvin): ");
-    scanf("%d", &target);
+    printf("Enter input scale (C, F, K): ");
+    scanf(" %c", &inputScale);
+    inputScale = toupper(inputScale);
+    
+    printf("Enter target scale (C, F, K): ");
+    scanf(" %c", &targetScale);
+    targetScale = toupper(targetScale);
 
-    value_celsius = convert_celsius(input_temp, current_scale);
+    if ((inputScale != 'C' && inputScale != 'F' && inputScale != 'K') ||
+        (targetScale != 'C' && targetScale != 'F' && targetScale != 'K')) {
+        printf("Error: Invalid scale selection.\n");
+        return 1;
+    }
 
-    converted_temp = revert_celsius(value_celsius, target);
+    if (inputScale == targetScale) {
+        printf("Error: Cannot convert to the same scale.\n");
+        return 1;
+    }
 
-    printf("\nConverted temerature: %.2f\n", converted_temp);
-    advisory(value_celsius);
+    if (inputScale == 'K' && temperature < 0) {
+        printf("Error: Kelvin cannot be negative.\n");
+        return 1;
+    }
+
+     if (inputScale == 'C') {
+        tempInCelsius = temperature;
+    } 
+    else if (inputScale == 'F') {
+        tempInCelsius = fahrenheit_to_celsius(temperature);
+    } 
+    else {  // K
+        tempInCelsius = kelvin_to_celsius(temperature);
+    }
+
+    // Convert Celsius to target scale
+    if (targetScale == 'C') {
+        convertedTemp = tempInCelsius;
+    } 
+    else if (targetScale == 'F') {
+        convertedTemp = celsius_to_fahrenheit(tempInCelsius);
+    } 
+    else {  // K
+        convertedTemp = celsius_to_kelvin(tempInCelsius);
+    }
+
+    printf("\nConverted Temperature: %.2f %c\n", convertedTemp, targetScale);
+
+    categorize_temp(tempInCelsius);
 
     return 0;
-
 }
 
-float convert_celsius(float temp, int scale) {
-    if (scale == 1) return (temp - 32) * 5 / 9;
-    if (scale == 3) return temp - 273.15;
-    return temp;
+float celsius_to_fahrenheit(float celsius) {
+    return (9.0/5.0) * celsius + 32;
 }
 
-float revert_celcius(float celsius, int target) {
-    if (target == 1) return (celsius * 9 / 5) + 32;
-    if (target == 3) return celsius + 273.25;
-    return celsius;
+float fahrenheit_to_celsius(float fahrenheit) {
+    return (5.0/9.0) * (fahrenheit - 32);
 }
 
-void advisory(float celsius) {
+float celsius_to_kelvin(float celsius) {
+    return celsius + 273.15;
+}
+
+float kelvin_to_celsius(float kelvin) {
+    return kelvin - 273.15;
+}
+
+float fahrenheit_to_kelvin(float fahrenheit) {
+    return celsius_to_kelvin(fahrenheit_to_celsius(fahrenheit));
+}
+
+float kelvin_to_fahrenheit(float kelvin) {
+    return celsius_to_fahrenheit(kelvin_to_celsius(kelvin));
+}
+
+void categorize_temp(float celsius) {
+
     if (celsius < 0) {
-        printf("Category: Freezing\nAdvisory: Wear a heavy coat and stay warm. \n");
-    } else if (celsius >= 0 && celsius < 10) {
-        printf("Category: Cold\nAdvisory: Wear a jacket.\n"); 
-    } else if (celsius >= 10 && celsius < 25) {
-        printf("Comfortable\nAdvisory: The weather is comfortable. Enjoy your day!\n");
-    } else if (celsius >= 25 && celsius < 35) {
-        printf("Hot\nAdvisory: It's getting hot. Stay hydrated.\n");
-    } else {
-        printf("Extreme Heat\nAdvisory: Extreme heat warning! Stay indoors and keep cool.\n");
+        printf("Category: Freezing\n");
+        printf("Advisory: Wear multiple layers of winter clothing.\n");
+    }
+
+    else if (celsius >= 0 && celsius <= 10) {
+        printf("Category: Cold\n");
+        printf("Advisory: Wear a jacket or sweatshirt.\n");
+    }
+
+    else if (celsius >= 10 && celsius <= 25) {
+        printf("Category: Comfortable\n");
+        printf("Advisory: The weather is nice, go enjoy it.\n");
+    }
+
+    else if (celsius >= 25 && celsius <= 35) {
+        printf("Category: Hot\n");
+        printf("Advisory: Make sure to drink plenty of water.\n");
+    }
+
+    else {
+        printf("Category: Extreme Heat\n");
+        printf("Advisory: Stay indoors and avoid being outside.\n");
     }
 }
